@@ -1,8 +1,42 @@
 # ghindex: step-by-step analysis of 20 major Nasdaq-listed companies.
-# Install ghindex first, then run from the project directory:
-# Rscript inst/examples/nasdaq.R
-library(quantmod)
+# Run from the ghindex project folder: Rscript inst/examples/nasdaq.R
+
+# Load the package, or install this checkout into your personal R library.
+local({
+  if (requireNamespace("ghindex", quietly = TRUE)) return(invisible(NULL))
+
+  root <- normalizePath(".")
+  if (!file.exists("DESCRIPTION") ||
+      !identical(unname(read.dcf("DESCRIPTION", fields = "Package")[1L, 1L]), "ghindex") ||
+      !dir.exists("R")) {
+    stop("ghindex is unavailable. Set your working directory to the ghindex project folder (the one containing DESCRIPTION), then rerun this script.", call. = FALSE)
+  }
+
+  lib <- path.expand(strsplit(Sys.getenv("R_LIBS_USER"), .Platform$path.sep, fixed = TRUE)[[1L]][1L])
+  if (is.na(lib) || !nzchar(lib) || lib == "NULL")
+    stop("Set R_LIBS_USER to a writable personal R library and rerun this script.", call. = FALSE)
+  dir.create(lib, recursive = TRUE, showWarnings = FALSE)
+  if (!dir.exists(lib) || file.access(lib, 2L) != 0L)
+    stop("Cannot write to personal R library: ", lib, call. = FALSE)
+  .libPaths(c(lib, .libPaths()))
+  if (requireNamespace("ghindex", quietly = TRUE)) return(invisible(NULL))
+
+  dependencies <- c("quantmod", "xts", "zoo", "ggplot2")
+  missing <- dependencies[!vapply(dependencies, requireNamespace, logical(1), quietly = TRUE)]
+  if (length(missing)) {
+    command <- paste(deparse(missing), collapse = " ")
+    stop("Install the missing R packages and rerun this script:\n  install.packages(",
+         command, ', repos = "https://cloud.r-project.org")', call. = FALSE)
+  }
+
+  message("Installing ghindex from ", root, " into ", lib)
+  utils::install.packages(root, lib = lib, repos = NULL, type = "source")
+  if (!requireNamespace("ghindex", quietly = TRUE))
+    stop("Could not load ghindex after installation. See the installation output above.", call. = FALSE)
+})
 library(ghindex)
+library(quantmod)
+
 
 # 1. Choose the securities and period --------------------------------------
 # Fixed selection of 20 prominent large Nasdaq-listed companies, not a live

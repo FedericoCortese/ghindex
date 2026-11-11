@@ -12,16 +12,17 @@ Requires R >= 4.1. In R or RStudio:
 ```r
 install.packages(c("quantmod", "xts", "zoo", "ggplot2"),
                  repos = "https://cloud.r-project.org")
-install.packages("/Users/federicocortese/Documents/git_repos/ghindex",
+install.packages(".",
                  repos = NULL, type = "source")
 library(ghindex)
 help(package = "ghindex")
 ```
 
-Alternatively, install the source archive in `output/ghindex_0.2.0.tar.gz`:
+If you have built or downloaded the source archive, you can install it instead
+(adjust the path to where you saved it):
 
 ```r
-install.packages("/Users/federicocortese/Documents/git_repos/ghindex/output/ghindex_0.2.0.tar.gz",
+install.packages("output/ghindex_0.2.0.tar.gz",
                  repos = NULL, type = "source")
 ```
 
@@ -114,15 +115,20 @@ not an investment selection rule.
 
 ## Worked examples
 
-Run from the project directory after installation:
+Run from the project directory (the folder containing `DESCRIPTION`):
 
 ```sh
 Rscript inst/examples/simulated.R
 Rscript inst/examples/nasdaq.R
 ```
 
-Or use `source("inst/examples/nasdaq.R")` from R/RStudio. Installed scripts are
-available under `system.file("examples", package = "ghindex")`.
+In R or RStudio, set the working directory to the project folder and use
+`source("inst/examples/nasdaq.R")` or `source("inst/examples/simulated.R")`.
+Each script checks whether `ghindex` can be loaded. If needed, it installs the
+local source package into your personal R library (`R_LIBS_USER`). If a
+dependency is missing, the script prints the command to install it.
+Installed scripts are available under
+`system.file("examples", package = "ghindex")`.
 
 - **Simulated:** reproducible asset prices with different volatility levels,
   serial dependence and a stress period; runs offline.
