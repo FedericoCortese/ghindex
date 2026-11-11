@@ -63,10 +63,6 @@ month_ends <- as.Date(tapply(as.numeric(dates), format(dates, "%Y-%m"), max),
                        origin = "1970-01-01")
 month_ends <- tail(month_ends, 24L)
 history <- screen_assets(prices, horizons = 1, dates = month_ends, inference = TRUE)
-ggplot2::ggsave(file.path(out_dir, "groups.png"), plot_groups(results),
-                 width = 12, height = 13, dpi = 150)
-ggplot2::ggsave(file.path(out_dir, "risk_over_time.png"), plot_risk_time(history),
-                 width = 12, height = 9, dpi = 150)
 # Use the same 20 illustrative assets in all risk and SE maps.
 shown <- names(prices)[unique(round(seq(1, length(prices), length.out = 20)))]
 reports <- list(

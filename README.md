@@ -144,7 +144,7 @@ Each example writes to `output/simulated/` or `output/nasdaq/`:
 
 | Files | Content |
 | --- | --- |
-| `groups.csv`, `groups.png` | Class/horizon summary with Sharpe and volatility |
+| `groups.csv` | Class/horizon summary with Sharpe and volatility |
 | `estimates.csv` | Individual estimates, SEs, intervals and diagnostic statuses |
 | `rolling_estimates.csv` | Monthly rolling estimates and newly calculated SEs |
 | `risk_horizons_type_*.png` | Assets x horizons, coloured by g/h |

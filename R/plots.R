@@ -1,7 +1,7 @@
 # Bindings used by ggplot2 data masking.
 utils::globalVariables(c("Time", "Price", "category", "rank", "average", "loss",
   "horizon_label", "class", "n_assets", "label", "date", "share", "text_colour",
-  "symbol", "estimate", "width", "value", "cell_label"))
+  "symbol", "estimate", "left", "right", "row", "value", "cell_label"))
 
 .asset_subset <- function(d, n_assets, symbols, complete_cells) {
   if (!nrow(d) || !any(is.finite(d$estimate))) stop("No index estimates available.")
@@ -55,7 +55,10 @@ plot_asset_risk <- function(results, horizon = min(results$horizon),
     c(time[1] - diff(time[1:2]) / 2,
       (utils::head(time, -1) + utils::tail(time, -1)) / 2,
       utils::tail(time, 1) + diff(utils::tail(time, 2)) / 2)
-  d$width <- diff(edges)[match(d$date, dates)]
+  column <- match(d$date, dates)
+  d$left <- as.Date(edges[column], origin = "1970-01-01")
+  d$right <- as.Date(edges[column + 1L], origin = "1970-01-01")
+  d$row <- as.integer(d$symbol)
   colours <- if (metric == "estimate")
     c("#FFFFCC", "#FED976", "#FD8D3C", "#E31A1C", "#800026") else
     c("#F7FBFF", "#9ECAE1", "#4292C6", "#08519C")
@@ -70,14 +73,23 @@ plot_asset_risk <- function(results, horizon = min(results$horizon),
     else "\nHigher index = higher drawdown risk. Grey/--: unavailable estimate.")
   pages <- lapply(sort(unique(d$type)), function(type) {
     page <- d[d$type == type, ]
-    mapping <- if (layout == "time") ggplot2::aes(x = date, y = symbol, fill = value) else
-      ggplot2::aes(x = horizon_label, y = symbol, fill = value)
-    p <- ggplot2::ggplot(page, mapping)
-    p <- if (layout == "time") p + ggplot2::geom_tile(ggplot2::aes(width = width), height = .9) else
-      p + ggplot2::geom_tile(colour = "white", height = .95) +
+    if (layout == "time") {
+      # Adjacent rectangles share the exact same date boundary.
+      p <- ggplot2::ggplot(page, ggplot2::aes(fill = value)) +
+        ggplot2::geom_rect(ggplot2::aes(xmin = left, xmax = right,
+                                     ymin = row - .45, ymax = row + .45)) +
+        ggplot2::scale_x_date(date_labels = "%Y-%m") +
+
+        ggplot2::scale_y_continuous(breaks = seq_along(selected$symbols),
+                                   labels = rev(selected$symbols))
+    } else {
+      p <- ggplot2::ggplot(page, ggplot2::aes(x = horizon_label, y = symbol, fill = value)) +
+        ggplot2::geom_tile(colour = "white", height = .95) +
         ggplot2::geom_text(ggplot2::aes(label = cell_label, colour = text_colour), size = 3) +
-        ggplot2::scale_colour_identity()
-    p + ggplot2::facet_grid(. ~ index) + ggplot2::scale_y_discrete(drop = FALSE) +
+        ggplot2::scale_colour_identity() +
+        ggplot2::scale_y_discrete(drop = FALSE)
+    }
+    p + ggplot2::facet_grid(. ~ index) +
       ggplot2::scale_fill_gradientn(colours = colours, limits = c(0, upper),
         breaks = if (metric == "estimate") function(x) unique(round(pretty(x))) else ggplot2::waiver(),
         na.value = "grey80", name = legend) +
