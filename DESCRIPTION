@@ -1,0 +1,16 @@
+Package: ghindex
+Type: Package
+Title: Drawdown-Based Asset Risk Classification
+Version: 0.2.0
+Authors@R: c(person("Federico P.", "Cortese", role = c("aut", "cre"),
+    email = "federico.cortese@unimi.it"),
+    person("Francesco", "Bartolucci", role = "aut"),
+    person("Fulvia", "Pennoni", role = "aut"))
+Description: Classifies financial assets using the g- and h-index of three
+    drawdown definitions. Provides cached quantmod downloads, horizon summaries,
+    rolling classifications and linearized Newey-West standard errors for
+    drawdown-based risk screening.
+License: file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: ggplot2, quantmod, xts, zoo, parallel, stats, utils
